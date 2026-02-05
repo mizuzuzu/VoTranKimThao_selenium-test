@@ -89,4 +89,5 @@ public class RegisterPage extends GeneralPage {
                 .getText()
                 .trim();
     }
+
 }

@@ -41,6 +41,7 @@ public class GeneralPage {
         return Constant.WEBDRIVER.findElement(tabRegister);
     }
 
+
     // Methods
     public String getWelcomeMessage() {
 
@@ -72,6 +73,7 @@ public class GeneralPage {
         this.getTabRegister().click();
         return new RegisterPage();
     }
+    
     
     public void gotoFAQPage() {
         this.getTabFAQ().click();

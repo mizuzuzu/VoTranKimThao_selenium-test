@@ -1,12 +1,11 @@
 package Railway;
 
 import java.time.Duration;
-import java.util.ArrayList;
-
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.WindowType;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -71,12 +70,12 @@ public class CreateAccountTest extends BaseTest{
 	    WebDriver driver = Constant.WEBDRIVER;
 
 	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(25));
+	    WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(120));
 
-	    // ================= STEP 1: Open Guerrilla Mail =================
+	    //Open Guerrilla Mail
 
 	    driver.get("https://www.guerrillamail.com/inbox");
 
-	    // Tắt alias
 	    WebElement chkAlias = wait.until(
 	            ExpectedConditions.elementToBeClickable(By.id("use-alias")));
 
@@ -84,85 +83,64 @@ public class CreateAccountTest extends BaseTest{
 	        chkAlias.click();
 	    }
 
-	    // Lấy mail
-	    String tempEmail = wait.until(
-	            ExpectedConditions.visibilityOfElementLocated(
-	                    By.id("email-widget"))).getText();
+	    String tempEmail = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email-widget"))).getText();
 
 	    System.out.println("Temp mail: " + tempEmail);
 
+	    String mailTab = driver.getWindowHandle();
 
+	    //Register Account
 
-	    // ================= STEP 2: Register (dùng POM) =================
+	    driver.switchTo().newWindow(WindowType.TAB);
 
-	    ((JavascriptExecutor) driver).executeScript("window.open()");
-
-	    ArrayList<String> tabs =
-	            new ArrayList<>(driver.getWindowHandles());
-
-	    driver.switchTo().window(tabs.get(1));
+	    driver.getWindowHandle();
 
 	    HomePage homePage = new HomePage();
 	    homePage.open();
 
 	    RegisterPage registerPage = homePage.gotoRegisterPage();
 
-	    registerPage.register(
-	            tempEmail,
-	            "Valid@Password",
-	            Constant.PID
-	    );
+	    registerPage.register(tempEmail, "Valid@Password", Constant.PID);
 
+	    //Wait For Confirm Mail
 
+	    driver.switchTo().window(mailTab);
 
-	    // ================= STEP 3: Back to Guerrilla =================
+	    longWait.until(ExpectedConditions.presenceOfElementLocated(By.id("email_list")));
 
-	    driver.switchTo().window(tabs.get(0));
+	    int oldMailCount = driver.findElements(By.xpath("//tbody[@id='email_list']/tr")).size();
 
-	    // Đợi mail về
-	    wait.until(ExpectedConditions.presenceOfElementLocated(
-	            By.xpath("//tbody[@id='email_list']/tr")));
+	    System.out.println("Old mail count: " + oldMailCount);
 
-	    // Click mail đầu tiên
-	    wait.until(ExpectedConditions.elementToBeClickable(
-	            By.xpath("//tbody[@id='email_list']/tr[1]"))).click();
+	    longWait.until(d -> {
+	        int newCount = d.findElements(By.xpath("//tbody[@id='email_list']/tr")).size();
+	        return newCount > oldMailCount;
+	    });
 
+	    System.out.println("New mail arrived!");
 
+	    WebElement newestMail = longWait.until(ExpectedConditions.elementToBeClickable(By.xpath("//tbody[@id='email_list']/tr[1]")));
 
-	    // ================= STEP 4: Click Confirm =================
+	    //advertise overlay 
+	    longWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className("grippy-host")));
 
-	    wait.until(ExpectedConditions
-	            .frameToBeAvailableAndSwitchToIt("email_body"));
+	    new Actions(driver).scrollToElement(newestMail).perform();
+	    new Actions(driver).moveToElement(newestMail).pause(Duration.ofMillis(300)).click().perform();
 
-	    WebElement confirmLink = wait.until(
-	            ExpectedConditions.elementToBeClickable(
-	                    By.xpath("//a[contains(@href,'Confirm')]")));
+	    //Confirm Link
 
-	    confirmLink.click();
+	    WebElement mailBody = longWait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.email_body, div.mail_body, div#email_body")));
 
-	    driver.switchTo().defaultContent();
+	    WebElement confirmLink = mailBody.findElement(By.xpath(".//a[contains(@href,'Account/Confirm')]"));
 
+	    String confirmUrl = confirmLink.getAttribute("href");
+	    System.out.println("Confirm URL: " + confirmUrl);
 
+	    driver.get(confirmUrl);
 
-	    // ================= STEP 5: Login verify =================
+	    WebElement successMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(),'Registration Confirmed')]")));
 
-	    ArrayList<String> tabs2 =
-	            new ArrayList<>(driver.getWindowHandles());
-
-	    driver.switchTo().window(tabs2.get(tabs2.size() - 1));
-
-	    wait.until(ExpectedConditions.urlContains("Login"));
-
-	    LoginPage loginPage = new LoginPage();
-
-	    loginPage.login(tempEmail, "Valid@Password");
-
-	    String welcome = wait.until(
-	            ExpectedConditions.visibilityOfElementLocated(
-	                    By.className("account"))).getText();
-
-	    Assert.assertTrue(welcome.contains(tempEmail));
+	    Assert.assertEquals(successMsg.getText(),"Registration Confirmed! You can now log in to the site.","Confirm message is incorrect");
 	}
-
 
 }
