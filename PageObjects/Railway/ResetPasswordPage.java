@@ -1,15 +1,8 @@
 package Railway;
 
-import java.time.Duration;
-
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
+import Common.Utilities;
 import Constant.Constant;
 
 public class ResetPasswordPage {
@@ -59,146 +52,46 @@ public class ResetPasswordPage {
     //Methods
     public ResetPasswordPage enterEmail(String email) {
 
-        WebDriverWait wait =
-                new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(15));
+        Utilities.waitForVisible(txtEmail);
 
-        JavascriptExecutor js =
-                (JavascriptExecutor) Constant.WEBDRIVER;
+        Utilities.sendKeys(txtEmail, email);
 
-        // Wait textbox email
-        WebElement txtEmail = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(this.txtEmail)
-        );
 
-        txtEmail.clear();
-        txtEmail.sendKeys(email);
+        Utilities.scrollTo(btnSendIns);
 
-        // Wait button
-        WebElement btnSend = wait.until(
-                ExpectedConditions.presenceOfElementLocated(this.btnSendIns)
-        );
-
-        // Scroll tới button
-        js.executeScript("arguments[0].scrollIntoView({block:'center'});", btnSend);
-
-        // Đợi overlay biến mất (nếu có)
-        wait.until(ExpectedConditions.elementToBeClickable(btnSend));
-
-        try {
-            btnSend.click();
-        } catch (Exception e) {
-            // Nếu vẫn bị chặn → dùng JS click
-            js.executeScript("arguments[0].click();", btnSend);
-        }
+        Utilities.click(btnSendIns);
 
         return this;
     }
 
+    public ResetPasswordPage changeNewPassword(String password, String confirmPwd) {
 
-    
-    public ResetPasswordPage changeNewPassword(String password, String confirmpwd) {
+        Utilities.waitForVisible(txtNewPwd);
+        Utilities.waitForVisible(txtCfmPwd);
 
-        WebDriverWait wait =
-                new WebDriverWait(Constant.WEBDRIVER,
-                        Duration.ofSeconds(25));
+        Utilities.sendKeys(txtNewPwd, password);
+        Utilities.sendKeys(txtCfmPwd, confirmPwd);
 
-        // Đợi input
-        WebElement newPwd = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(txtNewPwd));
-
-        WebElement cfmPwd = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(txtCfmPwd));
-
-        // Nhập password
-        newPwd.clear();
-        newPwd.sendKeys(password);
-
-        cfmPwd.clear();
-        cfmPwd.sendKeys(confirmpwd);
-
-
-        // Đợi button xuất hiện
-        WebElement btn = wait.until(
-                ExpectedConditions.presenceOfElementLocated(btnResetPwd)
-        );
-
-
-        // Scroll tới button
-        ((JavascriptExecutor) Constant.WEBDRIVER)
-                .executeScript(
-                    "arguments[0].scrollIntoView({block:'center'});", btn);
-
-
-        // Đợi overlay biến mất (nếu có)
-        try {
-            wait.until(
-                ExpectedConditions.invisibilityOfElementLocated(
-                    By.className("grippy-host"))
-            );
-        } catch (Exception e) {
-            // ignore
-        }
-
-
-        // Đợi button thật sự enabled
-        wait.until(d -> btn.isEnabled());
-
-
-        // ===== TRY CLICK 1: Normal =====
-        try {
-            btn.click();
-            return this;
-        } catch (Exception e) {
-            System.out.println("Normal click failed → try Actions");
-        }
-
-
-        // ===== TRY CLICK 2: Actions =====
-        try {
-            new Actions(Constant.WEBDRIVER)
-                    .moveToElement(btn)
-                    .pause(Duration.ofMillis(300))
-                    .click()
-                    .perform();
-
-            return this;
-
-        } catch (Exception e) {
-            System.out.println("Actions click failed → try JS");
-        }
-
-
-        // ===== TRY CLICK 3: JS (Final backup) =====
-        ((JavascriptExecutor) Constant.WEBDRIVER)
-                .executeScript("arguments[0].click();", btn);
+        Utilities.click(btnResetPwd);
 
         return this;
     }
 
-
-    
     public String getResetResultMessage() {
 
-        WebDriverWait wait = new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(15));
+        if (Utilities.isDisplayed(lblRsSuccesMsg)) {
 
-        try {
-            WebElement success = wait.until(
-                    ExpectedConditions.visibilityOfElementLocated(lblRsSuccesMsg));
+            return Utilities.getText(lblRsSuccesMsg);
 
-            return success.getText().trim();
+        } else {
 
-        } catch (TimeoutException e) {
-            WebElement error = wait.until(
-                    ExpectedConditions.visibilityOfElementLocated(lblRsErrorMsg));
-
-            return error.getText().trim();
+            return Utilities.getText(lblRsErrorMsg);
         }
     }
 
-
     public String getConfirmPasswordErrorMsgDisplay() {
-        return Constant.WEBDRIVER.findElement(lblVldPwdMsg).getText().trim();
+
+        return Utilities.getText(lblVldPwdMsg);
     }
-    
 
 }

@@ -7,108 +7,132 @@ import Constant.Constant;
 
 public class LoginTest extends BaseTest{
 
+	@Test
+	public void TC01() {
 
-    @Test
-    public void TC01() {
-        System.out.println("TC01 - User can log into Railway with valid username and password");
+	    System.out.println("TC01 - User can log into Railway with valid username and password");
 
-        HomePage homePage = new HomePage();
-        homePage.open();
+	    HomePage homePage = new HomePage();
+	    homePage.open();
 
-        LoginPage loginPage = homePage.gotoLoginPage();
+	    LoginPage loginPage = homePage.gotoLoginPage();
+	    GeneralPage pageAfterLogin = loginPage.login(Constant.VALID_USER);
 
-        String actualMsg = loginPage
-                .loginSuccess(Constant.VALID_USERNAME, Constant.VALID_PASSWORD)
-                .getWelcomeMessage();
+	    Assert.assertTrue(pageAfterLogin instanceof HomePage, "Login failed - Not redirected to HomePage");
 
+	    HomePage homeAfterLogin = (HomePage) pageAfterLogin;
 
-        String expectedMsg = "Welcome " + Constant.VALID_USERNAME; 
+	    String actualMsg = homeAfterLogin.getWelcomeMessage();
+	    String expectedMsg = "Welcome " + Constant.VALID_USER.getUsername();
 
-        Assert.assertEquals(actualMsg, expectedMsg, "Welcome message is not displayed as expected");
-    }
-    
-    
-    @Test
-    public void TC02() {
+	    Assert.assertEquals(actualMsg, expectedMsg, "Welcome message is not displayed as expected");
+	}
 
-        System.out.println("TC02 - User cannot login with blank username textbox");
+	@Test
+	public void TC02() {
 
-        HomePage homePage = new HomePage();
-        homePage.open();
+	    System.out.println("TC02 - User cannot login with blank username textbox");
 
-        LoginPage loginPage = homePage.gotoLoginPage();
+	    HomePage homePage = new HomePage();
+	    Account blankUsername = new Account("", "123456");
 
-        String actualMsg = loginPage
-                .login("", Constant.VALID_PASSWORD)
-                .getLoginErrorMsg();
+	    homePage.open();
 
-        String expectedMsg = "There was a problem with your login and/or errors exist in your form." ;
+	    LoginPage loginPage = homePage.gotoLoginPage();
+	    GeneralPage pageAfterLogin = loginPage.login(blankUsername);
 
-        Assert.assertEquals(actualMsg, expectedMsg, "Error message is not displayed as expected");
-    }
-    
+	    Assert.assertTrue(pageAfterLogin instanceof LoginPage,"Login should fail but user was not stayed on Login page");
+
+	    LoginPage loginAfterFail = (LoginPage) pageAfterLogin;
+
+	    String actualMsg = loginAfterFail.getLoginErrorMsg();
+	    String expectedMsg ="There was a problem with your login and/or errors exist in your form.";
+
+	    Assert.assertEquals(actualMsg, expectedMsg, "Error message is not displayed as expected");
+	}
+
     @Test
     public void TC03() {
 
-        System.out.println("TC03 - User cannot log into Railway with invalid password");
+    	System.out.println("TC03- User cannot login with blank username textbox");
 
-        HomePage homePage = new HomePage();
-        homePage.open();
+	    HomePage homePage = new HomePage();
+	    Account invalidPwdUsername = new Account(Constant.VALID_USER.getUsername(), "invalid@Password");
 
-        LoginPage loginPage = homePage.gotoLoginPage();
+	    homePage.open();
 
-        String actualMsg = loginPage
-                .login(Constant.VALID_USERNAME, Constant.INVALID_PASSWORD)
-                .getLoginErrorMsg();
+	    LoginPage loginPage = homePage.gotoLoginPage();
+	    GeneralPage pageAfterLogin = loginPage.login(invalidPwdUsername);
 
-        String expectedMsg = "There was a problem with your login and/or errors exist in your form.";
+	    Assert.assertTrue(pageAfterLogin instanceof LoginPage,"Login should fail but user was not stayed on Login page");
 
-        Assert.assertEquals(actualMsg, expectedMsg, "Error message is not displayed as expected");
-    }
+	    LoginPage loginAfterFail = (LoginPage) pageAfterLogin;
+
+	    String actualMsg = loginAfterFail.getLoginErrorMsg();
+	    String expectedMsg ="There was a problem with your login and/or errors exist in your form.";
+
+	    Assert.assertEquals(actualMsg, expectedMsg, "Error message is not displayed as expected");
+	}
     
     @Test
     public void TC04() {
 
-        System.out.println("TC04 - System shows warning after many invalid logins");
+        System.out.println("TC04 - System shows message when user enters wrong password many times");
 
         HomePage homePage = new HomePage();
+        Account invalidAccount = new Account(Constant.VALID_USER.getUsername(), "invalid@Password");
+
         homePage.open();
 
         LoginPage loginPage = homePage.gotoLoginPage();
 
+        String expectedNormalMsg = "Invalid username or password. Please try again.";
+
+        String expectedLimitMsg = "You have used 4 out of 5 login attempts. After all 5 have been used, you will be unable to login for 15 minutes.";
+        
         for (int i = 1; i <= 4; i++) {
+            GeneralPage page = loginPage.login(invalidAccount);
+            Assert.assertTrue(page instanceof LoginPage, "Attempt " + i + ": Login should fail but user was not stayed on Login page");
 
-            loginPage = loginPage.login(Constant.LOCK_TEST_USERNAME, Constant.LOCK_TEST_PASSWORD);
+            loginPage = (LoginPage) page;
 
-            Assert.assertEquals(loginPage.getLoginErrorMsg(), "Invalid username or password. Please try again.", "Error message is not displayed as expected");
+            String actualMsg = loginPage.getLoginErrorMsg();
+            Assert.assertEquals(actualMsg, expectedNormalMsg, "Attempt " + i + ": Error message is not displayed as expected");
         }
 
-        loginPage = loginPage.login(Constant.LOCK_TEST_USERNAME, Constant.LOCK_TEST_PASSWORD);
+        //Lan thu 5
+        GeneralPage page = loginPage.login(invalidAccount);
 
-        Assert.assertEquals(loginPage.getLoginErrorMsg(), 
-        		"You have used 4 out of 5 login attempts. After all 5 have been used, you will be unable to login for 15 minutes.", 
-        		"Error message is not displayed as expected");
+        Assert.assertTrue(page instanceof LoginPage, "Attempt 5: Login should fail but user was not stayed on Login page");
+
+        LoginPage loginAfter5th = (LoginPage) page;
+        String actualMsg5th = loginAfter5th.getLoginErrorMsg();
+
+        Assert.assertEquals(actualMsg5th, expectedLimitMsg, "Attempt 5: Error message is not displayed as expected");
     }
 
     
     @Test
     public void TC05() {
 
-        System.out.println("TC05 - User cannot login with inactive account");
+    	System.out.println("TC05- User can't login with an account hasn't been activated");
 
-        HomePage homePage = new HomePage();
-        homePage.open();
+	    HomePage homePage = new HomePage();
 
-        LoginPage loginPage = homePage.gotoLoginPage();
+	    homePage.open();
 
-        String actualMsg = loginPage
-                .login(Constant.INACTIVED_USERNAME, Constant.INVALID_PASSWORD)
-                .getLoginErrorMsg();
+	    LoginPage loginPage = homePage.gotoLoginPage();
+	    GeneralPage pageAfterLogin = loginPage.login(Constant.INACTIVED_USER);
 
-        String expectedMsg = "Invalid username or password. Please try again.";
+	    Assert.assertTrue(pageAfterLogin instanceof LoginPage,"Login should fail but user was not stayed on Login page");
 
-        Assert.assertEquals(actualMsg, expectedMsg, "Error message is not displayed as expected for inactive account");
-    }
+	    LoginPage loginAfterFail = (LoginPage) pageAfterLogin;
+
+	    String actualMsg = loginAfterFail.getLoginErrorMsg();
+	    String expectedMsg = "Invalid username or password. Please try again.";
+
+	    Assert.assertEquals(actualMsg, expectedMsg, "Error message is not displayed as expected");
+	}
 
 
 }

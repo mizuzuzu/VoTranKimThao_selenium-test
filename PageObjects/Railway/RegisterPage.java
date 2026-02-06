@@ -3,6 +3,7 @@ package Railway;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import Common.Utilities;
 import Constant.Constant;
 
 public class RegisterPage extends GeneralPage {
@@ -50,44 +51,32 @@ public class RegisterPage extends GeneralPage {
     }
 
 	//Methods
-	public RegisterPage register(String email, String password, String pid) {
+	public RegisterPage register(String email, String password, String confirmPwd, String pid) {
 
-        this.getTxtEmail().clear();
-        this.getTxtEmail().sendKeys(email);
+	    Utilities.sendKeys(txtEmail, email);
+	    Utilities.sendKeys(txtPassword, password);
+	    Utilities.sendKeys(txtCfrmPassword, confirmPwd);
+	    Utilities.sendKeys(txtPID, pid);
 
-        this.getTxtPassword().clear();
-        this.getTxtPassword().sendKeys(password);
-        
-        this.getTxtCfrmPassword().clear();
-        this.getTxtCfrmPassword().sendKeys(password);
-        
-        this.getTxtPID().clear();
-        this.getTxtPID().sendKeys(pid);
+	    Utilities.click(btnRegister);
 
-        this.getBtnRegister().click();
-
-        return this; 
-    }
+	    return this;
+	}
 	
+	public RegisterPage register(Account user) {
+	    return register(user.getUsername(), user.getPassword(), user.getConfirmPassword(), user.getPid());
+	}
+
 	public String getRegisterErrorMsg() {
-        return Constant.WEBDRIVER
-                .findElement(lblRegisterErrorMsg)
-                .getText()
-                .trim();
-    }
-	
-	public String getLblValidateErrorPasswordDisplay() {
-        return Constant.WEBDRIVER
-                .findElement(lblVlidtePassword)
-                .getText()
-                .trim();
-    }
-	
-	public String getLblValidateErrorPIDDisplay() {
-        return Constant.WEBDRIVER
-                .findElement(lblVlidtePID)
-                .getText()
-                .trim();
-    }
+	    return Utilities.getText(lblRegisterErrorMsg);
+	}
+
+	public String getValidatePasswordError() {
+	    return Utilities.getText(lblVlidtePassword);
+	}
+
+	public String getValidatePIDError() {
+	    return Utilities.getText(lblVlidtePID);
+	}
 
 }

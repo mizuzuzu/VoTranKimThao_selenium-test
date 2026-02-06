@@ -15,123 +15,62 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import Constant.Constant;
+import Guerrilla.GuerrillaMailPage;
+
 
 public class ResetPasswordTest extends BaseTest {
-	
-	private void openLatestMailWithRetry(WebDriver driver) {
-
-	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-
-	    WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(120));
-
-	    boolean opened = false;
-
-	    for (int i = 0; i < 5; i++) {
-
-	        try {
-
-	            WebElement mail = longWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//tbody[@id='email_list']/tr[1]")));
-
-	            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", mail);
-
-	            longWait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.email_body")));
-
-	            opened = true;
-	            break;
-
-	        } catch (Exception e) {
-
-	            System.out.println("Retry open mail: " + (i + 1));
-
-	            driver.navigate().refresh();
-
-	            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("email_list")));
-	        }
-	    }
-
-	    Assert.assertTrue(opened, "Cannot open email!");
-	}
-
+	// web sap nen chua test thanh cong :(
 	
 	@Test
 	public void TC10() {
 
-	    System.out.println("TC10 - Reset password shows error if the new password is same as current");
-
-	    WebDriver driver = Constant.WEBDRIVER;
-
-	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-	    WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(120));
+	    System.out.println("TC10 - Reset password shows error if new password = old");
 
 	    String password = "Valid@Password";
 
+	    GuerrillaMailPage mailPage = new GuerrillaMailPage();
 
-	    // ================= STEP 1: Open Guerrilla =================
 
-	    driver.get("https://www.guerrillamail.com/inbox");
+	    //Open Mail
 
-	    WebElement chkAlias = wait.until(ExpectedConditions.elementToBeClickable(By.id("use-alias")));
+	    mailPage.open();
 
-	    if (chkAlias.isSelected()) {
-	        chkAlias.click();
-	    }
-
-	    String tempEmail = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email-widget"))).getText();
+	    String tempEmail = mailPage.useRandomEmail();
 
 	    System.out.println("Temp mail: " + tempEmail);
 
+	    String mailTab = Constant.WEBDRIVER.getWindowHandle();
 
 
-	    // ================= STEP 2: Register =================
+	    //Register
 
-	    driver.switchTo().newWindow(WindowType.TAB);
-
-	    List<String> tabs =new ArrayList<>(driver.getWindowHandles());
-
-	    driver.switchTo().window(tabs.get(1));
+	    Constant.WEBDRIVER.switchTo().newWindow(WindowType.TAB);
 
 	    HomePage homePage = new HomePage();
 	    homePage.open();
 
-	    RegisterPage registerPage =homePage.gotoRegisterPage();
+	    RegisterPage registerPage = homePage.gotoRegisterPage();
 
-	    registerPage.register(tempEmail, password, Constant.PID);
-
-
-
-	    // ================= STEP 3: Activate =================
-
-	    driver.switchTo().window(tabs.get(0));
-
-	    longWait.until(ExpectedConditions.presenceOfElementLocated(By.id("email_list")));
-
-	    int oldCount = driver.findElements(By.xpath("//tbody[@id='email_list']/tr")).size();
-
-	    longWait.until(d -> d.findElements(By.xpath("//tbody[@id='email_list']/tr")).size() > oldCount);
+	    registerPage.register(
+	            tempEmail,
+	            password,
+	            password,
+	            Constant.PID
+	    );
 
 
-	    // Open confirm mail
-	    openLatestMailWithRetry(driver);
+	    //Activate
+
+	    Constant.WEBDRIVER.switchTo().window(mailTab);
+
+	    int oldCount = Constant.WEBDRIVER.findElements(By.xpath("//tbody[@id='email_list']/tr")).size();
+
+	    String confirmUrl = mailPage.openNewestMailAndGetLink(oldCount);
+
+	    Constant.WEBDRIVER.get(confirmUrl);
 
 
-	    WebElement confirmBody = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.email_body")));
-
-	    WebElement confirmLink = confirmBody.findElement(By.xpath(".//a[contains(@href,'Account/Confirm')]"));
-
-	    String confirmUrl = confirmLink.getAttribute("href");
-
-	    System.out.println("Confirm URL: " + confirmUrl);
-
-
-	    wait.until(ExpectedConditions.elementToBeClickable(By.id("back_to_inbox_link"))).click();
-
-
-	    driver.switchTo().newWindow(WindowType.TAB);
-	    driver.get(confirmUrl);
-
-
-
-	    // ================= STEP 4: Forgot Password =================
+	    //Forgot Password
 
 	    homePage.open();
 
@@ -139,128 +78,100 @@ public class ResetPasswordTest extends BaseTest {
 
 	    ResetPasswordPage resetPage = loginPage.gotoResetPwdPage();
 
-
-
-	    // ================= STEP 5: Send Reset =================
-
 	    resetPage.enterEmail(tempEmail);
 
 
+	    //Get Reset Mail
 
-	    // ================= STEP 6: Get Reset Mail =================
+	    Constant.WEBDRIVER.switchTo().window(mailTab);
 
-	    driver.switchTo().window(tabs.get(0));
+	    int oldCount2 =
+	            Constant.WEBDRIVER.findElements(By.xpath("//tbody[@id='email_list']/tr")).size();
 
-	    longWait.until(d -> d.findElements(By.xpath("//tbody[@id='email_list']/tr")).size() > oldCount + 1);
-
-
-	    openLatestMailWithRetry(driver);
-
-
-	    WebElement resetBody = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.email_body")));
-
-	    WebElement resetLink = resetBody.findElement(By.xpath(".//a[contains(@href,'Account/PasswordR')]"));
-
-	    String resetUrl = resetLink.getAttribute("href");
-
-	    System.out.println("Reset URL: " + resetUrl);
+	    String resetUrl = mailPage.openNewestMailAndGetLink(oldCount2);
 
 
-	    wait.until(ExpectedConditions.elementToBeClickable(By.id("back_to_inbox_link"))).click();
+	    //Reset
 
+	    Constant.WEBDRIVER.switchTo().newWindow(WindowType.TAB);
 
-
-	    // ================= STEP 7: Reset =================
-
-	    driver.switchTo().newWindow(WindowType.TAB);
-	    driver.get(resetUrl);
+	    Constant.WEBDRIVER.get(resetUrl);
 
 	    ResetPasswordPage resetPwdPage = new ResetPasswordPage();
 
 	    resetPwdPage.changeNewPassword(password, password);
 
 
-
-	    // ================= STEP 8: Verify =================
+	    //Verify
 
 	    String actualMsg = resetPwdPage.getResetResultMessage();
 
-	    System.out.println("Result: " + actualMsg);
-
-
-	    String expectedMsg = "The new password cannot be the same with the current password";
+	    String expectedMsg =
+	            "The new password cannot be the same with the current password";
 
 	    Assert.assertEquals(actualMsg, expectedMsg);
 	}
 
+
 	@Test
 	public void TC11() {
 
-	    System.out.println("TC11 - Reset password shows error if the new password and confirm password doesn't match");
-
-	    WebDriver driver = Constant.WEBDRIVER;
-
-	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-	    WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(120));
+	    System.out.println("TC11 - Reset password shows error if confirm password doesn't match");
 
 	    String password = "Valid@Password";
-	    String newpassword = "New@Valid@Password";
-	    String cfmpassword = "NewNewValid@Password";
+	    String newPassword = "New@Valid@Password";
+	    String confirmPassword = "NewNewValid@Password";
 
-	    driver.get("https://www.guerrillamail.com/inbox");
+	    GuerrillaMailPage mailPage = new GuerrillaMailPage();
 
-	    WebElement chkAlias = wait.until(ExpectedConditions.elementToBeClickable(By.id("use-alias")));
 
-	    if (chkAlias.isSelected()) {
-	        chkAlias.click();
-	    }
+	    //Open Mail
 
-	    String tempEmail = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email-widget"))).getText();
+	    mailPage.open();
+
+	    String tempEmail = mailPage.useRandomEmail();
 
 	    System.out.println("Temp mail: " + tempEmail);
 
-	    driver.switchTo().newWindow(WindowType.TAB);
+	    String mailTab = Constant.WEBDRIVER.getWindowHandle();
 
-	    List<String> tabs =new ArrayList<>(driver.getWindowHandles());
 
-	    driver.switchTo().window(tabs.get(1));
+
+	    //Register
+
+	    Constant.WEBDRIVER.switchTo().newWindow(WindowType.TAB);
 
 	    HomePage homePage = new HomePage();
 	    homePage.open();
 
-	    RegisterPage registerPage =homePage.gotoRegisterPage();
+	    RegisterPage registerPage = homePage.gotoRegisterPage();
 
-	    registerPage.register(tempEmail, password, Constant.PID);
-
-	    driver.switchTo().window(tabs.get(0));
-
-	    longWait.until(ExpectedConditions.presenceOfElementLocated(By.id("email_list")));
-
-	    int oldCount = driver.findElements(By.xpath("//tbody[@id='email_list']/tr")).size();
-
-	    longWait.until(d -> d.findElements(By.xpath("//tbody[@id='email_list']/tr")).size() > oldCount);
-
-	    openLatestMailWithRetry(driver);
-
-
-	    WebElement confirmBody = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.email_body")));
-
-	    WebElement confirmLink = confirmBody.findElement(By.xpath(".//a[contains(@href,'Account/Confirm')]"));
-
-	    String confirmUrl = confirmLink.getAttribute("href");
-
-	    System.out.println("Confirm URL: " + confirmUrl);
-
-
-	    wait.until(ExpectedConditions.elementToBeClickable(By.id("back_to_inbox_link"))).click();
-
-
-	    driver.switchTo().newWindow(WindowType.TAB);
-	    driver.get(confirmUrl);
+	    registerPage.register(
+	            tempEmail,
+	            password,
+	            password,
+	            Constant.PID
+	    );
 
 
 
-	    // ================= STEP 4: Forgot Password =================
+	    //Activate
+
+	    Constant.WEBDRIVER.switchTo().window(mailTab);
+
+	    int oldCount =
+	            Constant.WEBDRIVER
+	                    .findElements(By.xpath("//tbody[@id='email_list']/tr"))
+	                    .size();
+
+	    String confirmUrl =
+	            mailPage.openNewestMailAndGetLink(oldCount);
+
+	    Constant.WEBDRIVER.get(confirmUrl);
+
+
+
+	    //Forgot Password
 
 	    homePage.open();
 
@@ -268,57 +179,54 @@ public class ResetPasswordTest extends BaseTest {
 
 	    ResetPasswordPage resetPage = loginPage.gotoResetPwdPage();
 
-
-
-	    // ================= STEP 5: Send Reset =================
-
 	    resetPage.enterEmail(tempEmail);
 
 
 
-	    // ================= STEP 6: Get Reset Mail =================
+	    //Get Reset Mail
 
-	    driver.switchTo().window(tabs.get(0));
+	    Constant.WEBDRIVER.switchTo().window(mailTab);
 
-	    longWait.until(d -> d.findElements(By.xpath("//tbody[@id='email_list']/tr")).size() > oldCount + 1);
+	    int oldCount2 =
+	            Constant.WEBDRIVER
+	                    .findElements(By.xpath("//tbody[@id='email_list']/tr"))
+	                    .size();
 
-
-	    openLatestMailWithRetry(driver);
-
-
-	    WebElement resetBody = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.email_body")));
-
-	    WebElement resetLink = resetBody.findElement(By.xpath(".//a[contains(@href,'Account/PasswordR')]"));
-
-	    String resetUrl = resetLink.getAttribute("href");
-
-	    System.out.println("Reset URL: " + resetUrl);
-
-
-	    wait.until(ExpectedConditions.elementToBeClickable(By.id("back_to_inbox_link"))).click();
+	    String resetUrl =
+	            mailPage.openNewestMailAndGetLink(oldCount2);
 
 
 
-	    // ================= STEP 7: Reset =================
+	    //Reset
 
-	    driver.switchTo().newWindow(WindowType.TAB);
-	    driver.get(resetUrl);
+	    Constant.WEBDRIVER.switchTo().newWindow(WindowType.TAB);
+
+	    Constant.WEBDRIVER.get(resetUrl);
 
 	    ResetPasswordPage resetPwdPage = new ResetPasswordPage();
 
-	    resetPwdPage.changeNewPassword(newpassword, cfmpassword);
+	    resetPwdPage.changeNewPassword(newPassword, confirmPassword);
 
 
 
-	    // ================= STEP 8: Verify =================
+	    //verify
+	    String actualMsg =
+	            resetPwdPage.getResetResultMessage();
 
-	    String actualMsg = resetPwdPage.getResetResultMessage();
+	    String expectedMsg =
+	            "Could not reset password. Please correct the errors and try again.";
 
-	    Assert.assertEquals(actualMsg, "Could not reset password. Please correct the errors and try again.","Error message is not displayed as expected");
-	    
-	    String ConfirmPwdMsg = resetPwdPage.getConfirmPasswordErrorMsgDisplay();
-	    
-	    Assert.assertEquals(ConfirmPwdMsg, "The password confirmation did not match the new password.", "Error message is not displayed as expected");
+	    Assert.assertEquals(actualMsg, expectedMsg);
+
+
+	    String confirmPwdMsg =
+	            resetPwdPage.getConfirmPasswordErrorMsgDisplay();
+
+	    Assert.assertEquals(
+	            confirmPwdMsg,
+	            "The password confirmation did not match the new password.",
+	            "Confirm password error message is incorrect"
+	    );
 	}
 
 }

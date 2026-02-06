@@ -3,6 +3,7 @@ package Railway;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import Common.Utilities;
 import Constant.Constant;
 
 public class LoginPage extends GeneralPage {
@@ -35,38 +36,31 @@ public class LoginPage extends GeneralPage {
     }
     
     //Methods
-    public LoginPage login(String username, String password) {
+    private void doLogin(Account user) {
 
-        this.getTxtUsername().clear();
-        this.getTxtUsername().sendKeys(username);
-
-        this.getTxtPassword().clear();
-        this.getTxtPassword().sendKeys(password);
-
-        this.getBtnLogin().click();
-
-        return this; 
+        Utilities.sendKeys(txtUsername, user.getUsername());
+        Utilities.sendKeys(txtPassword, user.getPassword());
+        Utilities.click(btnLogin);
     }
     
+    //hien error message thi o lai login page, ko thi o trang home
+    public GeneralPage login(Account user) {
+
+        doLogin(user);
+
+        if (Utilities.isDisplayed(lblLoginErrorMsg)) {
+            return this;
+        }
+
+        return new HomePage();
+    }
+
     public String getLoginErrorMsg() {
-        return Constant.WEBDRIVER
-                .findElement(lblLoginErrorMsg)
-                .getText()
-                .trim();
+        return Utilities.getText(lblLoginErrorMsg);
     }
 
-    public HomePage loginSuccess(String username, String password) {
-    	//Submit login credentials
-    	this.getTxtUsername().sendKeys(username);
-    	this.getTxtPassword().sendKeys(password);
-    	this.getBtnLogin().click();
-    	
-    	//Land on Home Page
-    	return new HomePage();
-    }
-    
     public ResetPasswordPage gotoResetPwdPage() {
-        this.getHrLkForgotPassword().click();
+        Utilities.click(hrLkForgotPwd);
         return new ResetPasswordPage();
     }
 

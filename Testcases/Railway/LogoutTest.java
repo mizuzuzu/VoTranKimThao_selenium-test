@@ -3,27 +3,39 @@ package Railway;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import Common.Utilities;
 import Constant.Constant;
 
 public class LogoutTest extends BaseTest {
 
-    @Test
-    public void TC06() {
+	@Test
+	public void TC06() {
 
-        System.out.println("TC06 - User is redirected to Home page after logout");
+	    System.out.println("TC06 - Verify user is redirected to Home page after logging out");
 
-        HomePage homePage = new HomePage();
-        homePage.open();
+	    HomePage homePage = new HomePage();
+	    homePage.open();
 
-        LoginPage loginPage = homePage.gotoLoginPage();
+	    LoginPage loginPage = homePage.gotoLoginPage();
 
-        HomePage afterLoginHome = loginPage
-                .loginSuccess(Constant.VALID_USERNAME, Constant.VALID_PASSWORD);
+	    GeneralPage pageAfterLogin = loginPage.login(Constant.VALID_USER);
 
-        afterLoginHome.gotoFAQPage();
+	    Assert.assertTrue(pageAfterLogin instanceof HomePage, "Login failed - Not redirected to HomePage");
 
-        afterLoginHome.clickLogout();
+	    HomePage homeAfterLogin = (HomePage) pageAfterLogin;
 
-        Assert.assertFalse(afterLoginHome.isLogoutDisplayed(), "Logout tab is still displayed after logout");
-    }
+	    // Logout
+	    homeAfterLogin.Logout();
+	    
+	    Utilities.waitForPageLoaded();
+
+	    HomePage homeAfterLogout = new HomePage();
+
+	    Assert.assertTrue(homeAfterLogout.isHomePageDisplayed(),"User is NOT redirected to HomePage after logout");
+	    
+	    Assert.assertFalse(homeAfterLogout.isLogoutDisplayed(), "The Logout tab is still displayed after logout.");
+	}
+
+
+
 }
