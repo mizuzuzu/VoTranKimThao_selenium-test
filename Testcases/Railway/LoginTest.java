@@ -16,14 +16,14 @@ public class LoginTest extends BaseTest{
 	    homePage.open();
 
 	    LoginPage loginPage = homePage.gotoLoginPage();
-	    GeneralPage pageAfterLogin = loginPage.login(Constant.VALID_USER);
+	    GeneralPage pageAfterLogin = loginPage.login(Constant.VALID_USER_01);
 
 	    Assert.assertTrue(pageAfterLogin instanceof HomePage, "Login failed - Not redirected to HomePage");
 
 	    HomePage homeAfterLogin = (HomePage) pageAfterLogin;
 
 	    String actualMsg = homeAfterLogin.getWelcomeMessage();
-	    String expectedMsg = "Welcome " + Constant.VALID_USER.getUsername();
+	    String expectedMsg = "Welcome " + Constant.VALID_USER_01.getUsername();
 
 	    Assert.assertEquals(actualMsg, expectedMsg, "Welcome message is not displayed as expected");
 	}
@@ -54,10 +54,10 @@ public class LoginTest extends BaseTest{
     @Test
     public void TC03() {
 
-    	System.out.println("TC03- User cannot login with blank username textbox");
+    	System.out.println("TC03- User cannot log into Railway with invalid password ");
 
 	    HomePage homePage = new HomePage();
-	    Account invalidPwdUsername = new Account(Constant.VALID_USER.getUsername(), "invalid@Password");
+	    Account invalidPwdUsername = new Account(Constant.VALID_USER_01.getUsername(), "invalid@Password");
 
 	    homePage.open();
 
@@ -80,7 +80,7 @@ public class LoginTest extends BaseTest{
         System.out.println("TC04 - System shows message when user enters wrong password many times");
 
         HomePage homePage = new HomePage();
-        Account invalidAccount = new Account(Constant.VALID_USER.getUsername(), "invalid@Password");
+        Account invalidAccount = new Account(Constant.VALID_USER_01.getUsername(), "invalid@Password");
 
         homePage.open();
 

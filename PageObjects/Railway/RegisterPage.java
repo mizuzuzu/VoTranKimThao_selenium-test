@@ -12,10 +12,13 @@ public class RegisterPage extends GeneralPage {
 	private final By txtPassword = By.id("password");
 	private final By txtCfrmPassword = By.id("confirmPassword");
 	private final By txtPID = By.id("pid");
+	
 	private final By btnRegister = By.xpath("//input[@title='Register']");
+	
 	private final By lblRegisterErrorMsg = By.xpath("//p[@class='message error']");
 	private final By lblVlidtePassword = By.xpath("//label[@class='validation-error' and @for='password']");
 	private final By lblVlidtePID = By.xpath("//label[@class='validation-error' and @for='pid']");
+	private final By lblVerifySuccessMsg = By.xpath("//*[contains(text(),'Registration Confirmed')]");
 	
 	//Elements
 	public WebElement getTxtEmail() {
@@ -50,6 +53,10 @@ public class RegisterPage extends GeneralPage {
         return Constant.WEBDRIVER.findElement(lblVlidtePID);
     }
 
+	public WebElement getLblVerifySuccessMsg() {
+        return Constant.WEBDRIVER.findElement(lblVerifySuccessMsg);
+    }
+	
 	//Methods
 	public RegisterPage register(String email, String password, String confirmPwd, String pid) {
 
@@ -58,6 +65,7 @@ public class RegisterPage extends GeneralPage {
 	    Utilities.sendKeys(txtCfrmPassword, confirmPwd);
 	    Utilities.sendKeys(txtPID, pid);
 
+	    Utilities.scrollTo(btnRegister);
 	    Utilities.click(btnRegister);
 
 	    return this;
@@ -77,6 +85,10 @@ public class RegisterPage extends GeneralPage {
 
 	public String getValidatePIDError() {
 	    return Utilities.getText(lblVlidtePID);
+	}
+	
+	public String getVerifySuccessMsg() {
+	    return Utilities.getText(lblVerifySuccessMsg);
 	}
 
 }

@@ -1,13 +1,14 @@
 package Railway;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WindowType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import Common.Utilities;
 import Constant.Constant;
+import Constant.MailType;
 import Guerrilla.GuerrillaMailPage;
+import Window.Site;
+import Window.WindowManager;
 
 public class CreateAccountTest extends BaseTest{
 	@Test
@@ -16,7 +17,7 @@ public class CreateAccountTest extends BaseTest{
 	    System.out.println("TC07 - User can't create account with an already in-use email");
 
 	    HomePage homePage = new HomePage();
-	    Account alreadyUsedEmail = new Account(Constant.VALID_USER.getUsername(), "12345678", "12345678", "12345678");
+	    Account alreadyUsedEmail = new Account(Constant.VALID_USER_01.getUsername(), "12345678", "12345678", "12345678");
 	    
 	    homePage.open();
 
@@ -61,7 +62,6 @@ public class CreateAccountTest extends BaseTest{
         Assert.assertEquals(actualPIDVlid, expectedVlidPIDError, "Error message for PID is not displayed as expected");
     }
 	
-	//web sap nen chua test thanh cong :(
 	@Test
 	public void TC09() {
 
@@ -70,13 +70,13 @@ public class CreateAccountTest extends BaseTest{
 	    GuerrillaMailPage mailPage = new GuerrillaMailPage();
 	    mailPage.open();
 
+	    WindowManager.save(Site.GUERRILLA_MAIL);
+
 	    String tempEmail = mailPage.useRandomEmail();
 
 	    System.out.println("Temp mail: " + tempEmail);
 
-	    String mailTab = Constant.WEBDRIVER.getWindowHandle();
-
-	    Constant.WEBDRIVER.switchTo().newWindow(WindowType.TAB);
+	    WindowManager.openNew(Site.RAILWAY);
 
 	    HomePage homePage = new HomePage();
 	    homePage.open();
@@ -85,19 +85,18 @@ public class CreateAccountTest extends BaseTest{
 
 	    registerPage.register(tempEmail, "Valid@Password", "Valid@Password", Constant.PID);
 
-	    Constant.WEBDRIVER.switchTo().window(mailTab);
+	    WindowManager.switchTo(Site.GUERRILLA_MAIL);
+
 	    Utilities.waitForPageLoaded();
 
-	    String confirmUrl = mailPage.openNewestMailAndGetLink(1); //ban dau co 1 mail
+	    String confirmUrl = mailPage.openNewestMailAndGetLink(MailType.VERIFY_ACCOUNT);
 
 	    System.out.println("Confirm URL: " + confirmUrl);
 
-	    Constant.WEBDRIVER.get(confirmUrl);
-	   
-	    By successMsg = By.xpath("//*[contains(text(),'Registration Confirmed')]");
+	    Utilities.openDynamicLink(confirmUrl);
 
-	    String actualMsg = Utilities.getText(successMsg);
-
+	    String actualMsg = registerPage.getVerifySuccessMsg();
+	    
 	    String expectedMsg = "Registration Confirmed! You can now log in to the site.";
 
 	    Assert.assertEquals(actualMsg, expectedMsg, "Confirm message is not displayed as expected");

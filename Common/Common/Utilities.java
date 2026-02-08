@@ -1,6 +1,9 @@
 package Common;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
@@ -11,85 +14,80 @@ import com.google.common.base.Function;
 import Constant.Constant;
 
 public class Utilities {
-	
-	//wait
+
     private static final int TIMEOUT = 20;
-    
-    public static void waitUntilCondition(Function<WebDriver, Boolean> condition, int timeout) {
 
-        WebDriverWait wait = new WebDriverWait(Constant.WEBDRIVER,Duration.ofSeconds(timeout));
+    //wait
+    public static void waitUntilCondition(Function<WebDriver, Boolean> condition) {
 
-        wait.until(condition);
+        new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(TIMEOUT)).until(condition);
     }
-    
+
+
     public static WebElement waitForVisible(By locator) {
 
-        WebDriverWait wait = new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(TIMEOUT));
-
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        return new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(TIMEOUT)).until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
+
 
     public static WebElement waitForClickable(By locator) {
 
-        WebDriverWait wait = new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(TIMEOUT));
-
-        return wait.until(ExpectedConditions.elementToBeClickable(locator));
+        return new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(TIMEOUT)).until(ExpectedConditions.elementToBeClickable(locator));
     }
+
 
     public static WebElement waitForPresence(By locator) {
 
-        WebDriverWait wait = new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(TIMEOUT));
-
-        return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+        return new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(TIMEOUT)).until(ExpectedConditions.presenceOfElementLocated(locator));
     }
-    
+
+
     public static void waitForPageLoaded() {
 
-        WebDriverWait wait = new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(TIMEOUT));
-        wait.until(driver -> ((JavascriptExecutor) driver).executeScript("return document.readyState").equals("complete"));
+        new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(TIMEOUT)).until(driver ->
+                ((JavascriptExecutor) driver).executeScript("return document.readyState").equals("complete")
+        );
     }
 
-    public static void waitForOverlayGone(By locator) {
+    public static Alert waitForAlert() {
 
-        try {
-            WebDriverWait wait = new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(5));
-
-            wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
-
-        } catch (Exception e) {
-        	
-        }
+        return new WebDriverWait(Constant.WEBDRIVER, Duration.ofSeconds(TIMEOUT)).until(ExpectedConditions.alertIsPresent());
     }
+
 
     //click
     public static void click(By locator) {
 
         WebElement element = waitForClickable(locator);
 
+        scrollTo(element);
+
         try {
+
             element.click();
+
         } catch (ElementClickInterceptedException e) {
-            new Actions(Constant.WEBDRIVER).moveToElement(element).pause(Duration.ofMillis(200)).click().perform();
+
+            new Actions(Constant.WEBDRIVER).moveToElement(element).pause(Duration.ofSeconds(1)).click().perform();
         }
     }
-    
+
+
     public static void clickByJS(WebElement element) {
 
-        JavascriptExecutor js = (JavascriptExecutor) Constant.WEBDRIVER;
+        scrollTo(element);
 
-        js.executeScript("arguments[0].click();", element);
+        ((JavascriptExecutor) Constant.WEBDRIVER).executeScript("arguments[0].click();", element);
     }
-    
+
+
     public static void clickByJS(By locator) {
 
-        WebDriver driver = Constant.WEBDRIVER;
+        WebElement element = waitForPresence(locator);
 
-        WebElement element = new WebDriverWait(driver, Duration.ofSeconds(30))
-                .until(ExpectedConditions.presenceOfElementLocated(locator));
+        scrollTo(element);
 
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-
-        js.executeScript("arguments[0].click();", element);
+        ((JavascriptExecutor) Constant.WEBDRIVER).executeScript("arguments[0].click();", element);
     }
 
 
@@ -98,16 +96,20 @@ public class Utilities {
 
         WebElement element = waitForVisible(locator);
 
+        scrollTo(element);
+
         element.clear();
         element.sendKeys(text);
     }
+
 
     //get text
     public static String getText(By locator) {
 
         return waitForVisible(locator).getText().trim();
     }
-    
+
+
     public static String getTextByJS(By locator) {
 
         WebElement element = waitForPresence(locator);
@@ -116,33 +118,125 @@ public class Utilities {
                 .executeScript("return arguments[0].textContent;", element);
     }
 
+
+    public static String getText(WebElement element) {
+
+        return element.getText().trim();
+    }
+    
+    public static String getSelectedOptionText(By locator) {
+
+        Select select = new Select(Constant.WEBDRIVER.findElement(locator));
+
+        return select.getFirstSelectedOption().getText();
+    }
+
+
+
+    //date
+    public static String getNextDay(int days) { //number day + from today
+
+        LocalDate date = LocalDate.now().plusDays(days);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy");
+
+        return date.format(formatter);
+    }
+
+
     //scroll
     public static void scrollTo(By locator) {
 
-        WebElement element = waitForPresence(locator);
-
-        ((JavascriptExecutor)Constant.WEBDRIVER).executeScript("arguments[0].scrollIntoView({block:'center'});", element);
+        scrollTo(waitForPresence(locator));
     }
-    
+
+
     public static void scrollTo(WebElement element) {
 
-        ((JavascriptExecutor) Constant.WEBDRIVER)
-                .executeScript(
-                    "arguments[0].scrollIntoView({block:'center'});",
-                    element
-                );
+        ((JavascriptExecutor) Constant.WEBDRIVER).executeScript("arguments[0].scrollIntoView({block:'center'});", element);
     }
+
 
     //display
     public static boolean isDisplayed(By locator) {
 
         try {
+
             return Constant.WEBDRIVER.findElement(locator).isDisplayed();
-            
+
         } catch (Exception e) {
+
             return false;
         }
     }
 
-}
 
+    //select
+    public static void selectByVisibleText(By locator, String text) {
+
+        WebElement element = waitForVisible(locator);
+
+        scrollTo(element);
+
+        new Select(element).selectByVisibleText(text);
+    }
+
+
+    public static void selectAfterReload(By locator, String text) {
+
+        WebDriverWait wait = new WebDriverWait(Constant.WEBDRIVER,Duration.ofSeconds(TIMEOUT));
+
+        //danh sach cu
+        List<String> oldOptions = new Select(waitForVisible(locator)).getOptions().stream().map(o -> o.getText().trim()).toList();
+
+        //reload
+        wait.until(driver -> {
+
+            try {
+
+                Select s = new Select(driver.findElement(locator));
+
+                List<String> newOptions = s.getOptions().stream().map(o -> o.getText().trim()).toList();
+
+                return !newOptions.equals(oldOptions);
+
+            } catch (StaleElementReferenceException e) {
+
+                return false;
+            }
+        });
+
+        WebElement element = waitForVisible(locator);
+
+        scrollTo(element);
+
+        // Reload xong moi select
+        new Select(element).selectByVisibleText(text);
+    }
+
+    //pop up
+    public static void handleAlert(boolean accept) {
+
+        Alert alert = waitForAlert();
+
+        if (accept) {
+            alert.accept();
+        } else {
+            alert.dismiss();
+        }
+    }
+    
+    public static String getAlertText() {
+
+        Alert alert = waitForAlert();
+        return alert.getText();
+    }
+
+
+    //url
+    public static void openDynamicLink(String url) {
+
+        Constant.WEBDRIVER.get(url);
+    }
+
+}

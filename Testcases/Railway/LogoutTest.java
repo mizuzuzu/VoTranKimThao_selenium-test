@@ -18,7 +18,7 @@ public class LogoutTest extends BaseTest {
 
 	    LoginPage loginPage = homePage.gotoLoginPage();
 
-	    GeneralPage pageAfterLogin = loginPage.login(Constant.VALID_USER);
+	    GeneralPage pageAfterLogin = loginPage.login(Constant.VALID_USER_01);
 
 	    Assert.assertTrue(pageAfterLogin instanceof HomePage, "Login failed - Not redirected to HomePage");
 

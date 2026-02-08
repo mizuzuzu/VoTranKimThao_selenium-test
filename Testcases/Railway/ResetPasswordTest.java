@@ -1,116 +1,86 @@
 package Railway;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.WindowType;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import Common.Utilities;
 import Constant.Constant;
+import Constant.MailType;
 import Guerrilla.GuerrillaMailPage;
+import Window.Site;
+import Window.WindowManager;
 
 
 public class ResetPasswordTest extends BaseTest {
-	// web sap nen chua test thanh cong :(
 	
 	@Test
 	public void TC10() {
 
-	    System.out.println("TC10 - Reset password shows error if new password = old");
+	    System.out.println("TC10 - Reset password shows error if the new password is same as current");
+	    
+	    //tach mail 
+	    
+	    String email = Constant.ACCOUNT_CHANGE_PASSWORD.getUsername();
+	    String password = Constant.ACCOUNT_CHANGE_PASSWORD.getPassword();
 
-	    String password = "Valid@Password";
-
+	    String emailName = email.split("@")[0];
+	    String hostName  = email.split("@")[1];
+	    
+	    //mo guerrilla len roi set up mail
+	    
 	    GuerrillaMailPage mailPage = new GuerrillaMailPage();
-
-
-	    //Open Mail
 
 	    mailPage.open();
 
-	    String tempEmail = mailPage.useRandomEmail();
+	    WindowManager.save(Site.GUERRILLA_MAIL);
 
-	    System.out.println("Temp mail: " + tempEmail);
+	    mailPage.useCreatedEmail(emailName, hostName);
 
-	    String mailTab = Constant.WEBDRIVER.getWindowHandle();
+	    System.out.println("Temp mail: " + email);
+	    
+	    //nhan forgot password de nhap email
 
-
-	    //Register
-
-	    Constant.WEBDRIVER.switchTo().newWindow(WindowType.TAB);
+	    WindowManager.openNew(Site.RAILWAY);
 
 	    HomePage homePage = new HomePage();
-	    homePage.open();
-
-	    RegisterPage registerPage = homePage.gotoRegisterPage();
-
-	    registerPage.register(
-	            tempEmail,
-	            password,
-	            password,
-	            Constant.PID
-	    );
-
-
-	    //Activate
-
-	    Constant.WEBDRIVER.switchTo().window(mailTab);
-
-	    int oldCount = Constant.WEBDRIVER.findElements(By.xpath("//tbody[@id='email_list']/tr")).size();
-
-	    String confirmUrl = mailPage.openNewestMailAndGetLink(oldCount);
-
-	    Constant.WEBDRIVER.get(confirmUrl);
-
-
-	    //Forgot Password
-
 	    homePage.open();
 
 	    LoginPage loginPage = homePage.gotoLoginPage();
 
 	    ResetPasswordPage resetPage = loginPage.gotoResetPwdPage();
 
-	    resetPage.enterEmail(tempEmail);
+	    resetPage.enterEmail(email);
+	    
+	    //ve lai guerrilla de lay link reset
 
+	    WindowManager.switchTo(Site.GUERRILLA_MAIL);
 
-	    //Get Reset Mail
+	    Utilities.waitForPageLoaded();
 
-	    Constant.WEBDRIVER.switchTo().window(mailTab);
+	    String resetUrl = mailPage.openNewestMailAndGetLink(MailType.RESET_PASSWORD);
+	    
+	    //lay token tu mail
+	    String mailToken = mailPage.getResetTokenFromMail();
 
-	    int oldCount2 =
-	            Constant.WEBDRIVER.findElements(By.xpath("//tbody[@id='email_list']/tr")).size();
+	    System.out.println("Reset URL: " + resetUrl);
+	    
+	    //mo url roi set up password y nhu cu
 
-	    String resetUrl = mailPage.openNewestMailAndGetLink(oldCount2);
-
-
-	    //Reset
-
-	    Constant.WEBDRIVER.switchTo().newWindow(WindowType.TAB);
-
-	    Constant.WEBDRIVER.get(resetUrl);
-
-	    ResetPasswordPage resetPwdPage = new ResetPasswordPage();
+	    ResetPasswordPage resetPwdPage = ResetPasswordPage.open(resetUrl);
 
 	    resetPwdPage.changeNewPassword(password, password);
-
-
-	    //Verify
+	    
+	    String uiToken = resetPage.getResetTokenFieldDisplay();
 
 	    String actualMsg = resetPwdPage.getResetResultMessage();
 
-	    String expectedMsg =
-	            "The new password cannot be the same with the current password";
+	    String expectedMsg = "The new password cannot be the same with the current password";
+	    
+	    Assert.assertEquals(uiToken, mailToken, "Token is not the same with mail token");
 
-	    Assert.assertEquals(actualMsg, expectedMsg);
+	    Assert.assertEquals(actualMsg, expectedMsg, "Reset password error message is not displayed as expected");
 	}
+
 
 
 	@Test
@@ -118,115 +88,71 @@ public class ResetPasswordTest extends BaseTest {
 
 	    System.out.println("TC11 - Reset password shows error if confirm password doesn't match");
 
-	    String password = "Valid@Password";
-	    String newPassword = "New@Valid@Password";
-	    String confirmPassword = "NewNewValid@Password";
+	    //tach mail 
+	    
+	    String email = Constant.ACCOUNT_CHANGE_PASSWORD.getUsername();
+	    String password = Constant.ACCOUNT_CHANGE_PASSWORD.getPassword();
 
+	    String emailName = email.split("@")[0];
+	    String hostName  = email.split("@")[1];
+	    
+	    //mo guerrilla len roi set up mail
+	    
 	    GuerrillaMailPage mailPage = new GuerrillaMailPage();
-
-
-	    //Open Mail
 
 	    mailPage.open();
 
-	    String tempEmail = mailPage.useRandomEmail();
+	    WindowManager.save(Site.GUERRILLA_MAIL);
 
-	    System.out.println("Temp mail: " + tempEmail);
+	    mailPage.useCreatedEmail(emailName, hostName);
 
-	    String mailTab = Constant.WEBDRIVER.getWindowHandle();
+	    System.out.println("Temp mail: " + email);
+	    
+	    //nhan forgot password de nhap email
 
-
-
-	    //Register
-
-	    Constant.WEBDRIVER.switchTo().newWindow(WindowType.TAB);
+	    WindowManager.openNew(Site.RAILWAY);
 
 	    HomePage homePage = new HomePage();
-	    homePage.open();
-
-	    RegisterPage registerPage = homePage.gotoRegisterPage();
-
-	    registerPage.register(
-	            tempEmail,
-	            password,
-	            password,
-	            Constant.PID
-	    );
-
-
-
-	    //Activate
-
-	    Constant.WEBDRIVER.switchTo().window(mailTab);
-
-	    int oldCount =
-	            Constant.WEBDRIVER
-	                    .findElements(By.xpath("//tbody[@id='email_list']/tr"))
-	                    .size();
-
-	    String confirmUrl =
-	            mailPage.openNewestMailAndGetLink(oldCount);
-
-	    Constant.WEBDRIVER.get(confirmUrl);
-
-
-
-	    //Forgot Password
-
 	    homePage.open();
 
 	    LoginPage loginPage = homePage.gotoLoginPage();
 
 	    ResetPasswordPage resetPage = loginPage.gotoResetPwdPage();
 
-	    resetPage.enterEmail(tempEmail);
+	    resetPage.enterEmail(email);
+	    
+	    //ve lai guerrilla de lay link reset
 
+	    WindowManager.switchTo(Site.GUERRILLA_MAIL);
 
+	    Utilities.waitForPageLoaded();
 
-	    //Get Reset Mail
+	    String resetUrl = mailPage.openNewestMailAndGetLink(MailType.RESET_PASSWORD);
+	    
+	    //lay token tu mail
+	    String mailToken = mailPage.getResetTokenFromMail();
 
-	    Constant.WEBDRIVER.switchTo().window(mailTab);
+	    System.out.println("Reset URL: " + resetUrl);
+	    
+	    //mo url roi set up password khac confirm password
 
-	    int oldCount2 =
-	            Constant.WEBDRIVER
-	                    .findElements(By.xpath("//tbody[@id='email_list']/tr"))
-	                    .size();
+	    ResetPasswordPage resetPwdPage = ResetPasswordPage.open(resetUrl);
 
-	    String resetUrl =
-	            mailPage.openNewestMailAndGetLink(oldCount2);
+	    resetPwdPage.changeNewPassword(password, "confirmpassword");
+	    
+	    String uiToken = resetPage.getResetTokenFieldDisplay();
 
+	    String actualMsgAbove = resetPwdPage.getResetResultMessage();
+	    String actualMsgNextCfrm = resetPwdPage.getConfirmPasswordErrorMsgDisplay();
+	    
+	    String expectedMsgAbove = "Could not reset password. Please correct the errors and try again.";
+	    String expectedMsgNextCfrm = "The password confirmation did not match the new password.";
+	    
+	    Assert.assertEquals(uiToken, mailToken, "Token is not the same with mail token");
 
-
-	    //Reset
-
-	    Constant.WEBDRIVER.switchTo().newWindow(WindowType.TAB);
-
-	    Constant.WEBDRIVER.get(resetUrl);
-
-	    ResetPasswordPage resetPwdPage = new ResetPasswordPage();
-
-	    resetPwdPage.changeNewPassword(newPassword, confirmPassword);
-
-
-
-	    //verify
-	    String actualMsg =
-	            resetPwdPage.getResetResultMessage();
-
-	    String expectedMsg =
-	            "Could not reset password. Please correct the errors and try again.";
-
-	    Assert.assertEquals(actualMsg, expectedMsg);
-
-
-	    String confirmPwdMsg =
-	            resetPwdPage.getConfirmPasswordErrorMsgDisplay();
-
-	    Assert.assertEquals(
-	            confirmPwdMsg,
-	            "The password confirmation did not match the new password.",
-	            "Confirm password error message is incorrect"
-	    );
+	    Assert.assertEquals(actualMsgAbove, expectedMsgAbove, "Error message above is not displayed as expected");
+	    
+	    Assert.assertEquals(actualMsgNextCfrm, expectedMsgNextCfrm, "Error message next to confirm password is not displayed as expected");
 	}
 
 }

@@ -15,6 +15,12 @@ public class Ticket {
         this.seatType = seatType;
         this.ticketAmount = ticketAmount;
     }
+    
+    public Ticket(String departDate, String seatType, String ticketAmount) {
+        this.departDate = departDate;
+        this.seatType = seatType;
+        this.ticketAmount = ticketAmount;
+    }
 
     public String getDepartDate() {
         return departDate;

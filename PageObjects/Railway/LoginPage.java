@@ -10,8 +10,11 @@ public class LoginPage extends GeneralPage {
 	// Locators
     private final By txtUsername = By.id("username");
     private final By txtPassword = By.id("password");
+    
     private final By btnLogin = By.xpath("//input[@value='login']");
+    
     private final By lblLoginErrorMsg = By.xpath("//p[@class='message error LoginForm']");
+    
     private final By hrLkForgotPwd = By.xpath("//a[contains(@href,'ForgotPassword')]");
 
     // Elements
@@ -40,6 +43,8 @@ public class LoginPage extends GeneralPage {
 
         Utilities.sendKeys(txtUsername, user.getUsername());
         Utilities.sendKeys(txtPassword, user.getPassword());
+        
+        Utilities.scrollTo(btnLogin);
         Utilities.click(btnLogin);
     }
     
