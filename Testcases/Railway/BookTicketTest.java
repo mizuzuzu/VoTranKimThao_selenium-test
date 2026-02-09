@@ -13,8 +13,8 @@ public class BookTicketTest extends BaseTest{
 
 	    System.out.println("TC12 - User can book 1 ticket at a time");
 	    
-	    //3 ngay tu hom nay
-	    Ticket newTicket = new Ticket(Utilities.getNextDay(3), "Nha Trang", "Huế", "Soft bed with air conditioner", "1");
+	    //depart date cho check tu 3 ngay tu ngay hom nay, 2 ngay tu depart date = 5 ngay
+	    Ticket newTicket = new Ticket(Utilities.getNextDay(5), "Nha Trang", "Huế", "Soft bed with air conditioner", "1");
 
 	    HomePage homePage = new HomePage();
 	    homePage.open();
@@ -43,8 +43,8 @@ public class BookTicketTest extends BaseTest{
 
 	    System.out.println("TC13 - User can book many tickets at a time");
 	    
-	    //25 ngay tu hom nay
-	    Ticket newTicket = new Ticket(Utilities.getNextDay(25), "Nha Trang", "Sài Gòn", "Soft seat with air conditioner", "5");
+	  //depart date cho check tu 3 ngay tu ngay hom nay, 25 ngay tu depart date = 28 ngay
+	    Ticket newTicket = new Ticket(Utilities.getNextDay(28), "Nha Trang", "Sài Gòn", "Soft seat with air conditioner", "5");
 
 	    HomePage homePage = new HomePage();
 	    homePage.open();
@@ -109,9 +109,7 @@ public class BookTicketTest extends BaseTest{
 	public void TC15()  {
 
 	    System.out.println("TC15 - User can book ticket from Timetable");
-	    
-	    //ko the book tomorrow vi mac dinh he thong deu cach 3 ngay tinh tu hom nay
-	    Ticket newTicket = new Ticket(Utilities.getNextDay(3), "Soft seat with air conditioner", "5");
+	    Ticket newTicket = new Ticket(Utilities.getNextDay(1), "Soft seat with air conditioner", "5");
 	    String departFrom = "Quảng Ngãi";
 	    String arriveAt = "Huế";
 

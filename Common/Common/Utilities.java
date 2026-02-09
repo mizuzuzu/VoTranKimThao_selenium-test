@@ -178,7 +178,14 @@ public class Utilities {
 
         scrollTo(element);
 
-        new Select(element).selectByVisibleText(text);
+        try {
+        	new Select(element).selectByVisibleText(text);
+        } catch (NoSuchElementException e) {
+
+            throw new AssertionError(
+                "Cannot find option with text: [" + text + "] at locator: " + locator
+            );
+        }
     }
 
 
@@ -186,33 +193,53 @@ public class Utilities {
 
         WebDriverWait wait = new WebDriverWait(Constant.WEBDRIVER,Duration.ofSeconds(TIMEOUT));
 
-        //danh sach cu
+        // Lay danh sach option ban dau
         List<String> oldOptions = new Select(waitForVisible(locator)).getOptions().stream().map(o -> o.getText().trim()).toList();
 
-        //reload
-        wait.until(driver -> {
+        // Cho dropdown reload
+        boolean isReloaded = wait.until(driver -> {
 
             try {
 
-                Select s = new Select(driver.findElement(locator));
+                Select select = new Select(driver.findElement(locator));
 
-                List<String> newOptions = s.getOptions().stream().map(o -> o.getText().trim()).toList();
+                List<String> newOptions = select.getOptions().stream().map(o -> o.getText().trim()).toList();
 
                 return !newOptions.equals(oldOptions);
 
             } catch (StaleElementReferenceException e) {
-
                 return false;
             }
         });
 
+        if (!isReloaded) {
+            throw new AssertionError("Dropdown did not reload: " + locator);
+        }
+
+        // Sau khi reload xong -> tim lai element
         WebElement element = waitForVisible(locator);
 
         scrollTo(element);
 
-        // Reload xong moi select
-        new Select(element).selectByVisibleText(text);
+        try {
+
+        	new Select(element).selectByVisibleText(text);
+
+        } catch (NoSuchElementException e) {
+
+            StringBuilder options = new StringBuilder();
+
+            for (WebElement opt : new Select(element).getOptions()) {
+                options.append(opt.getText()).append(" | ");
+            }
+
+            throw new AssertionError(
+                "Cannot find option after reload: [" + text + "]"
+ 
+            );
+        }
     }
+
 
     //pop up
     public static void handleAlert(boolean accept) {

@@ -54,7 +54,7 @@ public class LoginTest extends BaseTest{
     @Test
     public void TC03() {
 
-    	System.out.println("TC03- User cannot log into Railway with invalid password ");
+    	System.out.println("TC03- User cannot log into Railway with invalid password");
 
 	    HomePage homePage = new HomePage();
 	    Account invalidPwdUsername = new Account(Constant.VALID_USER_01.getUsername(), "invalid@Password");
