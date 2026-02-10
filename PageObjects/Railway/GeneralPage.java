@@ -81,8 +81,10 @@ public class GeneralPage {
         Utilities.click(tabFAQ);
     }
 	
-	public void Logout() {
+	public HomePage Logout() {
         Utilities.click(tabLogout);
+        
+        return new HomePage();
     }
 	
 	public boolean isLogoutDisplayed() {

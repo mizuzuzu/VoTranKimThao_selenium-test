@@ -24,11 +24,11 @@ public class GuerrillaMailPage {
     
     private final By emailBody = By.cssSelector("div.email_body");
 
-    private final By verifyAccountMail = By.xpath("//tr[contains(@class,'mail_row') and contains(.,'Please confirm your account')]");
-    private final By verifyAccountLink = By.xpath("//a[contains(@href,'Account/Confirm')]");
+    private final By titleAccountMail = By.xpath("//tr[contains(@class,'mail_row') and contains(.,'Please confirm your account')]");
+    private final By linkAccountVerify = By.xpath("//a[contains(@href,'Account/Confirm')]");
     
-    private final By verifyResetPwdMail = By.xpath("//tr[contains(@class,'mail_row') and contains(.,'Please reset your password')]");
-    private final By verifyResetPwdLink = By.xpath("//a[contains(@href,'Account/PasswordReset')]");
+    private final By titleResetPwd = By.xpath("//tr[contains(@class,'mail_row') and contains(.,'Please reset your password')]");
+    private final By linkResetPwd = By.xpath("//a[contains(@href,'Account/PasswordReset')]");
     
     
     //Elements
@@ -65,11 +65,11 @@ public class GuerrillaMailPage {
     }
     
     protected List<WebElement> getVerifyAccountMail() {
-        return Constant.WEBDRIVER.findElements(verifyAccountMail);
+        return Constant.WEBDRIVER.findElements(titleAccountMail);
     }
     
     protected List<WebElement> getVerifyResetPwdMail() {
-        return Constant.WEBDRIVER.findElements(verifyResetPwdMail);
+        return Constant.WEBDRIVER.findElements(titleResetPwd);
     }
     
     //Methods
@@ -127,10 +127,10 @@ public class GuerrillaMailPage {
         switch (type) {
 
             case VERIFY_ACCOUNT:
-                return verifyAccountMail;
+                return titleAccountMail;
 
             case RESET_PASSWORD:
-                return verifyResetPwdMail;
+                return titleResetPwd;
 
             default:
                 throw new IllegalArgumentException("Unsupported mail type: " + type);
@@ -143,10 +143,10 @@ public class GuerrillaMailPage {
         switch (type) {
 
             case VERIFY_ACCOUNT:
-                return verifyAccountLink;
+                return linkAccountVerify;
 
             case RESET_PASSWORD:
-                return verifyResetPwdLink;
+                return linkResetPwd;
 
             default:
                 throw new IllegalArgumentException("Unsupported mail type: " + type);

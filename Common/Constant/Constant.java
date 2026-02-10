@@ -9,7 +9,8 @@ public class Constant {
 	
 	public static final String PID = "123456789";
 	
-	public static final String RAILWAY_URL = "http://saferailway.somee.com/Page/HomePage.cshtml";
+	public static final String HOMEPAGE_RAILWAY_URL = "http://saferailway.somee.com/Page/HomePage.cshtml";
+	public static final String lOGIN_RAILWAY_URL = "http://www.saferailway.somee.com/Account/Register.cshtml";
 	
     public static final Account VALID_USER_01 = new Account("superTest@pokemail.net", "superInvalid@Password123");
     public static final Account VALID_USER_02 = new Account("testAccount02@sharklasers.com", "superInvalid@Password123");

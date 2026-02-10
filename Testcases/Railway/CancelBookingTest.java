@@ -12,20 +12,20 @@ public class CancelBookingTest extends BaseTest {
 
 	    System.out.println("TC16 - User can cancel a ticket");
 	    
-	    //3 ngay tu hom nay
-	    Ticket newTicket = new Ticket(Utilities.getNextDay(3), "Nha Trang", "Huế", "Soft bed with air conditioner", "1");
-
 	    HomePage homePage = new HomePage();
+	    
+	    step("1. Navigate to QA Railway Website");
 	    homePage.open();
-
+	    
+	    step("2. Login with a valid account");
 	    LoginPage loginPage = homePage.gotoLoginPage();
-	    GeneralPage pageAfterLogin = loginPage.login(Constant.VALID_USER_04);
 
-	    Assert.assertTrue(pageAfterLogin instanceof HomePage, "Login failed - Not redirected to HomePage");
+	    HomePage pageAfterLogin = loginPage.login(Constant.VALID_USER_04, HomePage.class);
 
-	    HomePage homeAfterLogin = (HomePage) pageAfterLogin;
-
-	    BookTicketPage bookTicketPage = homeAfterLogin.gotoBookTicketPage();
+	    step("3. Book a ticket");
+	    BookTicketPage bookTicketPage = pageAfterLogin.gotoBookTicketPage();
+	    
+	    Ticket newTicket = new Ticket(Utilities.getNextDay(3), "Nha Trang", "Huế", "Soft bed with air conditioner", "1");
 
 	    bookTicketPage.bookTicket(newTicket);
 
@@ -34,10 +34,14 @@ public class CancelBookingTest extends BaseTest {
 	    
 	    Assert.assertEquals(actualMsg, expectedMsg, "Success message is not displayed as expected");
 
+	    step("4. Click on <My ticket> tab");
 	    TicketManagePage myTicketPage = bookTicketPage.gotoMyTicketPage();
 	    
+	    step("5. Click on <Cancel> button of ticket which user want to cancel.");
+	    step("6. Click on <OK> button on Confirmation message <Are you sure?>");
 	    myTicketPage.clickCancelTicket(newTicket);
 	    
+	    step("Verify: The canceled ticket is disappeared.");
 	    myTicketPage.verifyTicketDeleted(newTicket);
 	    
 	    

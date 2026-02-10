@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Suite">
+  <test thread-count="5" name="Test">
+    <classes>
+     	<class name="Railway.LoginTest"/>
+      	<class name="Railway.LogoutTest"/>
+      	<class name="Railway.CreateAccountTest"/>
+      	<class name="Railway.ResetPasswordTest"/>
+      	<class name="Railway.BookTicketTest"/>
+      	<class name="Railway.CancelBookingTest"/>
+    </classes>
+  </test> <!-- Test -->
+</suite> <!-- Suite -->

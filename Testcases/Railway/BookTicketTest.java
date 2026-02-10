@@ -12,30 +12,41 @@ public class BookTicketTest extends BaseTest{
 	public void TC12()  {
 
 	    System.out.println("TC12 - User can book 1 ticket at a time");
-	    
-	    //depart date cho check tu 3 ngay tu ngay hom nay, 2 ngay tu depart date = 5 ngay
-	    Ticket newTicket = new Ticket(Utilities.getNextDay(5), "Nha Trang", "Huế", "Soft bed with air conditioner", "1");
-
+	  
 	    HomePage homePage = new HomePage();
+	    step("1. Navigate to QA Railway Website");
 	    homePage.open();
-
+	    
+	    step("2. Login with a valid account ");
 	    LoginPage loginPage = homePage.gotoLoginPage();
-	    GeneralPage pageAfterLogin = loginPage.login(Constant.VALID_USER_02);
 
-	    Assert.assertTrue(pageAfterLogin instanceof HomePage, "Login failed - Not redirected to HomePage");
+	    HomePage pageAfterLogin = loginPage.login(Constant.VALID_USER_02, HomePage.class);
+	    step("3. Click on <Book ticket> tab");
+	    
+	    BookTicketPage bookTicketPage = pageAfterLogin.gotoBookTicketPage();
 
-	    HomePage homeAfterLogin = (HomePage) pageAfterLogin;
-
-	    BookTicketPage bookTicketPage = homeAfterLogin.gotoBookTicketPage();
-
+	    step("4. Select the next 2 days from <Depart date>");
+	    step("5. Select Depart from <Nha Trang> and Arrive at <Huế>");
+	    step("6. Select <Soft bed with air conditioner> for <Seat type>");
+	    step("7. Select <1> for <Ticket amount>");
+	    Ticket newTicket = new Ticket(Utilities.getNextDay(5), "Nha Trang", "Huế", "Soft bed with air conditioner", "1");
+	    		
+	    step("8. Click on <Book ticket> button");
 	    bookTicketPage.bookTicket(newTicket);
 
+	    step("Verify: Message <Ticket booked successfully!> displays. Ticket information display correctly (Depart Date,  Depart Station,  Arrive Station,  Seat Type,  Amount)");
 	    String actualMsg = bookTicketPage.getSuccessMessage();
 	    String expectedMsg = "Ticket booked successfully!";
 
 	    Assert.assertEquals(actualMsg, expectedMsg, "Success message is not displayed as expected");
 
-	    bookTicketPage.assertBookedTicketInfo(newTicket);
+	    Ticket actual = bookTicketPage.getBookedTicketInfo();
+
+	    Assert.assertEquals(actual.getDepartDate(), newTicket.getDepartDate(), "Wrong Date");
+	    Assert.assertEquals(actual.getDepartFrom(), newTicket.getDepartFrom(), "Wrong Depart");
+	    Assert.assertEquals(actual.getArriveAt(), newTicket.getArriveAt(), "Wrong Arrive");
+	    Assert.assertEquals(actual.getSeatType(), newTicket.getSeatType(), "Wrong Seat Type");
+	    Assert.assertEquals(actual.getTicketAmount(), newTicket.getTicketAmount(), "Wrong Amount");
 	}
 	
 	@Test
@@ -43,29 +54,40 @@ public class BookTicketTest extends BaseTest{
 
 	    System.out.println("TC13 - User can book many tickets at a time");
 	    
-	  //depart date cho check tu 3 ngay tu ngay hom nay, 25 ngay tu depart date = 28 ngay
-	    Ticket newTicket = new Ticket(Utilities.getNextDay(28), "Nha Trang", "Sài Gòn", "Soft seat with air conditioner", "5");
-
 	    HomePage homePage = new HomePage();
+	    step("1. Navigate to QA Railway Website");
 	    homePage.open();
-
+	    
+	    step("2. Login with a valid account ");
 	    LoginPage loginPage = homePage.gotoLoginPage();
-	    GeneralPage pageAfterLogin = loginPage.login(Constant.VALID_USER_02);
 
-	    Assert.assertTrue(pageAfterLogin instanceof HomePage, "Login failed - Not redirected to HomePage");
+	    HomePage pageAfterLogin = loginPage.login(Constant.VALID_USER_03, HomePage.class);
 
-	    HomePage homeAfterLogin = (HomePage) pageAfterLogin;
+	    step("3. Click on <Book ticket> tab"); 
+	    BookTicketPage bookTicketPage = pageAfterLogin.gotoBookTicketPage();
 
-	    BookTicketPage bookTicketPage = homeAfterLogin.gotoBookTicketPage();
-
+	    step("4. Select the next 25 days from <Depart date>");
+	    step("5. Select Depart from <Nha Trang> and Arrive at <Sài Gòn>");
+	    step("6. Select <Soft seat with air conditioner> for <Seat type>");
+	    step("7. Select <5> for <Ticket amount>");
+	    Ticket newTicket = new Ticket(Utilities.getNextDay(28), "Nha Trang", "Sài Gòn", "Soft seat with air conditioner", "5");
+	    		
+	    step("8. Click on <Book ticket> button");
 	    bookTicketPage.bookTicket(newTicket);
 
+	    step("Verify: Message <Ticket booked successfully!> displays. Ticket information display correctly (Depart Date,  Depart Station,  Arrive Station,  Seat Type,  Amount)");
 	    String actualMsg = bookTicketPage.getSuccessMessage();
 	    String expectedMsg = "Ticket booked successfully!";
 
 	    Assert.assertEquals(actualMsg, expectedMsg, "Success message is not displayed as expected");
 
-	    bookTicketPage.assertBookedTicketInfo(newTicket);
+	    Ticket actual = bookTicketPage.getBookedTicketInfo();
+
+	    Assert.assertEquals(actual.getDepartDate(), newTicket.getDepartDate(), "Wrong Date");
+	    Assert.assertEquals(actual.getDepartFrom(), newTicket.getDepartFrom(), "Wrong Depart");
+	    Assert.assertEquals(actual.getArriveAt(), newTicket.getArriveAt(), "Wrong Arrive");
+	    Assert.assertEquals(actual.getSeatType(), newTicket.getSeatType(), "Wrong Seat Type");
+	    Assert.assertEquals(actual.getTicketAmount(), newTicket.getTicketAmount(), "Wrong Amount");
 	}
 	
 	@Test
@@ -74,29 +96,33 @@ public class BookTicketTest extends BaseTest{
 	    System.out.println("TC14 - User can check price of ticket from Timetable");
 	 
 	    HomePage homePage = new HomePage();
+
+	    step("1. Navigate to QA Railway Website");
+
 	    homePage.open();
-
+	    
+	    step("2. Login with a valid account");
 	    LoginPage loginPage = homePage.gotoLoginPage();
-	    GeneralPage pageAfterLogin = loginPage.login(Constant.VALID_USER_02);
 
-	    Assert.assertTrue(pageAfterLogin instanceof HomePage, "Login failed - Not redirected to HomePage");
+	    HomePage pageAfterLogin = loginPage.login(Constant.VALID_USER_03, HomePage.class);
 
-	    HomePage homeAfterLogin = (HomePage) pageAfterLogin;
+	    step("3. Click on <Timetable> tab");
+	    TimetablePage timeTablePage = pageAfterLogin.gotoTimetablePage();
 
-	    TimetablePage timeTablePage = homeAfterLogin.gotoTimetablePage();
-
+	    step("4. Click on <check price> link of the route from <Đà Nẵng> to <Sài Gòn>");
 	    TicketPricePage checkPricePage = timeTablePage.gotoCheckPrice("Đà Nẵng", "Sài Gòn");
+
+	    step("Verify: <Ticket Price> page is loaded.");
+	    Assert.assertTrue(checkPricePage.isTicketPricePageDisplayed(),"User is NOT redirected to Ticket Price page");
 	    
-	    //Ticket price page verify
-	    Assert.assertTrue(checkPricePage instanceof TicketPricePage, "Check price failed - Not redirected to TicketPage");
-	    
-	    //Table title verify
+	    step("Ticket table shows <Ticket price from Đà Nẵng to Sài Gòn>.");
 	    String actualTPtableName = checkPricePage.getTicketPriceTitle();
 	    String expectedTPtableName = "Ticket price from Đà Nẵng to Sài Gòn";
 	    
 	    Assert.assertEquals(actualTPtableName, expectedTPtableName, "Title on Ticket Table is not showed as expected" );
 
-	    //Table seat price verify
+	    step("Price for each seat displays correctly: "
+	    		+ "HS = 310000, SS = 335000, SSC = 360000, HB = 410000, SB = 460000, SBC = 510000");
 	    for (SeatType seat : SeatType.values()) {
 
 	        String actualSeatPrice = checkPricePage.getPriceBySeat(seat.getCode());
@@ -109,40 +135,53 @@ public class BookTicketTest extends BaseTest{
 	public void TC15()  {
 
 	    System.out.println("TC15 - User can book ticket from Timetable");
-	    Ticket newTicket = new Ticket(Utilities.getNextDay(1), "Soft seat with air conditioner", "5");
+	    
+	    HomePage homePage = new HomePage();
+	    
+	    step("1. Navigate to QA Railway Website");
+	    homePage.open();
+	    
+	    step("2. Login with a valid account");
+	    LoginPage loginPage = homePage.gotoLoginPage();
+
+	    HomePage pageAfterLogin = loginPage.login(Constant.VALID_USER_03, HomePage.class);
+
+	    step("3. Click on <Timetable> tab");
+	    TimetablePage timeTablePage = pageAfterLogin.gotoTimetablePage();
+
+	    step("4. Click on book ticket of route <Quảng Ngãi> to <Huế>");
 	    String departFrom = "Quảng Ngãi";
 	    String arriveAt = "Huế";
-
-	    HomePage homePage = new HomePage();
-	    homePage.open();
-
-	    LoginPage loginPage = homePage.gotoLoginPage();
-	    GeneralPage pageAfterLogin = loginPage.login(Constant.VALID_USER_03);
-
-	    Assert.assertTrue(pageAfterLogin instanceof HomePage, "Login failed - Not redirected to HomePage");
-
-	    HomePage homeAfterLogin = (HomePage) pageAfterLogin;
-
-	    TimetablePage timeTablePage = homeAfterLogin.gotoTimetablePage();
-
 	    BookTicketPage bookTicketPage = timeTablePage.gotoBookTicket(departFrom, arriveAt );
 	    
-	    //field verify
+	    step("Verify: Book ticket form is shown with the corrected <depart from> and <Arrive at>");
 	    String actualDepartFromDisplay = bookTicketPage.getSelectedDepartFrom();
 	    Assert.assertEquals(actualDepartFromDisplay, departFrom, "Depart from field on booking form is not showed as table");
 
 	    String actualArriveAtDisplay = bookTicketPage.getSelectedArriveAt();
 	    Assert.assertEquals(actualArriveAtDisplay, arriveAt, "Arrive at field on booking form is not showed as table");
 	    
-	    //ticket
+	    step("5. Select Depart date = tomorrow");
+	    step("6. Select Ticket amount = 5");
+	    step("7. Click on <Book ticket> button");
+	    
+	    Ticket newTicket = new Ticket(Utilities.getNextDay(1), "Soft seat with air conditioner", "5");
+
 	    bookTicketPage.bookTicketWithPresetRoute(newTicket);
 
+	    step("Verify: Message <Ticket booked successfully!> displays. Ticket information display correctly (Depart Date,  Depart Station,  Arrive Station,  Seat Type,  Amount)");
 	    String actualMsg = bookTicketPage.getSuccessMessage();
 	    String expectedMsg = "Ticket booked successfully!";
 
 	    Assert.assertEquals(actualMsg, expectedMsg, "Success message is not displayed as expected");
 
-	    bookTicketPage.assertBookedTicketInfo(newTicket);
+	    Ticket actual = bookTicketPage.getBookedTicketInfo();
+
+	    Assert.assertEquals(actual.getDepartDate(), newTicket.getDepartDate(), "Wrong Date");
+	    Assert.assertEquals(actual.getDepartFrom(), newTicket.getDepartFrom(), "Wrong Depart");
+	    Assert.assertEquals(actual.getArriveAt(), newTicket.getArriveAt(), "Wrong Arrive");
+	    Assert.assertEquals(actual.getSeatType(), newTicket.getSeatType(), "Wrong Seat Type");
+	    Assert.assertEquals(actual.getTicketAmount(), newTicket.getTicketAmount(), "Wrong Amount");
 	}
 
 }

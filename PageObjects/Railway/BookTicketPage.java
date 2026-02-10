@@ -107,5 +107,18 @@ public class BookTicketPage extends GeneralPage {
         assertIfNotNull(getCellText(colAmount), ticket.getTicketAmount(), "Wrong Amount");
     }
 
+    public Ticket getBookedTicketInfo() {
+
+        Ticket actual = new Ticket();
+
+        actual.setDepartDate(getCellText(colDepartDate));
+        actual.setDepartFrom(getCellText(colDepartFrom));
+        actual.setArriveAt(getCellText(colArriveAt));
+        actual.setSeatType(getCellText(colSeatType));
+        actual.setTicketAmount(getCellText(colAmount));
+
+        return actual;
+    }
+
 
 }

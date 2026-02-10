@@ -170,7 +170,6 @@ public class Utilities {
         }
     }
 
-
     //select
     public static void selectByVisibleText(By locator, String text) {
 

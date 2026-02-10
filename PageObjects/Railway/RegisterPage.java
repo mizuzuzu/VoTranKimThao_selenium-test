@@ -15,6 +15,9 @@ public class RegisterPage extends GeneralPage {
 	
 	private final By btnRegister = By.xpath("//input[@title='Register']");
 	
+	private final By lblRegisterTitle = By.xpath("//div[@id='content']//h1[text()='Create account']");
+	private final By lblThankyouRegisterTitle = By.xpath("//div[@id='content']//h1[text()='Thank you for registering your account']");
+	
 	private final By lblRegisterErrorMsg = By.xpath("//p[@class='message error']");
 	private final By lblVlidtePassword = By.xpath("//label[@class='validation-error' and @for='password']");
 	private final By lblVlidtePID = By.xpath("//label[@class='validation-error' and @for='pid']");
@@ -90,5 +93,12 @@ public class RegisterPage extends GeneralPage {
 	public String getVerifySuccessMsg() {
 	    return Utilities.getText(lblVerifySuccessMsg);
 	}
+	
+	public boolean isRegisterPageDisplayed() {
+	    return Utilities.isDisplayed(lblRegisterTitle);
+	}
 
+	public boolean isThankYouRegisterDisplayed() {
+	    return Utilities.isDisplayed(lblThankyouRegisterTitle);
+	}
 }
