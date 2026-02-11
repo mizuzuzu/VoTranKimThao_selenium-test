@@ -105,8 +105,11 @@ public class Utilities {
 
     //get text
     public static String getText(By locator) {
+    	WebElement element = waitForVisible(locator);
 
-        return waitForVisible(locator).getText().trim();
+    	scrollTo(element);
+    	
+        return element.getText().trim();
     }
 
 
@@ -120,6 +123,8 @@ public class Utilities {
 
 
     public static String getText(WebElement element) {
+    	
+    	scrollTo(element);
 
         return element.getText().trim();
     }
