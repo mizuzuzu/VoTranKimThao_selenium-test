@@ -4,7 +4,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import Common.Utilities;
-import Constant.Constant;
 import Constant.MailType;
 import Guerrilla.GuerrillaMailPage;
 import Window.Site;
@@ -17,7 +16,8 @@ public class CreateAccountTest extends BaseTest{
 	    System.out.println("TC07 - User can't create account with an already in-use email");
 
 	    HomePage homePage = new HomePage();
-	    Account alreadyUsedEmail = new Account(Constant.VALID_USER_01.getUsername(), "12345678", "12345678", "12345678");
+	    Account alreadyUsedEmail = new Account(Accounts.VALID_USER_01.getUsername(), "12345678", "12345678", "12345678");
+	    
 	    step("1. Navigate to QA Railway Website");
         homePage.open();
 
@@ -104,7 +104,7 @@ public class CreateAccountTest extends BaseTest{
 	    
 	    step("3. Enter valid information into all fields");
 	    step("4. Click on <Register> button");
-	    registerPage.register(tempEmail, "Valid@Password", "Valid@Password", Constant.PID);
+	    registerPage.register(tempEmail, "Valid@Password", "Valid@Password", "12345678");
 	    
 	    step("Verify: <Thank you for registering your account> is shown");
 	    Assert.assertTrue(registerPage.isThankYouRegisterDisplayed(),"Title Thank you is not displayed after register");

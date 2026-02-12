@@ -3,14 +3,14 @@ package Railway;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import Common.Utilities;
-import Constant.Constant;
-
 public class CancelBookingTest extends BaseTest {
 	@Test
 	public void TC16()  {
 
 	    System.out.println("TC16 - User can cancel a ticket");
+	    
+	    Account account = Accounts.VALID_USER_04.toAccount();
+	    Ticket newTicket = Tickets.TC16.toTicket();
 	    
 	    HomePage homePage = new HomePage();
 	    
@@ -20,12 +20,10 @@ public class CancelBookingTest extends BaseTest {
 	    step("2. Login with a valid account");
 	    LoginPage loginPage = homePage.gotoLoginPage();
 
-	    HomePage pageAfterLogin = loginPage.login(Constant.VALID_USER_04, HomePage.class);
+	    homePage = loginPage.login(account, HomePage.class);
 
 	    step("3. Book a ticket");
-	    BookTicketPage bookTicketPage = pageAfterLogin.gotoBookTicketPage();
-	    
-	    Ticket newTicket = new Ticket(Utilities.getNextDay(3), "Nha Trang", "Huế", "Soft bed with air conditioner", "1");
+	    BookTicketPage bookTicketPage = homePage.gotoBookTicketPage();
 
 	    bookTicketPage.bookTicket(newTicket);
 

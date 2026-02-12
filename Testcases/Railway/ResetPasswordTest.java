@@ -4,7 +4,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import Common.Utilities;
-import Constant.Constant;
 import Constant.MailType;
 import Guerrilla.GuerrillaMailPage;
 import Window.Site;
@@ -18,8 +17,10 @@ public class ResetPasswordTest extends BaseTest {
 
 	    System.out.println("TC10 - Reset password shows error if the new password is same as current");
 	    
-	    String email = Constant.ACCOUNT_CHANGE_PASSWORD.getUsername();
-	    String password = Constant.ACCOUNT_CHANGE_PASSWORD.getPassword();
+	    Account account = Accounts.ACCOUNT_CHANGE_PASSWORD.toAccount();
+	    
+	    String email = account.getUsername();
+	    String password = account.getPassword();
 
 	    String emailName = email.split("@")[0];
 	    String hostName  = email.split("@")[1];
@@ -80,15 +81,15 @@ public class ResetPasswordTest extends BaseTest {
 	    Assert.assertEquals(actualMsg, expectedMsg, "Reset password error message is not displayed as expected");
 	}
 
-
-
 	@Test
 	public void TC11() {
 
 	    System.out.println("TC11 - Reset password shows error if confirm password doesn't match");
 	    
-	    String email = Constant.ACCOUNT_CHANGE_PASSWORD.getUsername();
-	    String password = Constant.ACCOUNT_CHANGE_PASSWORD.getPassword();
+	    Account account = Accounts.ACCOUNT_CHANGE_PASSWORD.toAccount();
+	    
+	    String email = account.getUsername();
+	    String password = account.getPassword();
 
 	    String emailName = email.split("@")[0];
 	    String hostName  = email.split("@")[1];

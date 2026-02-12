@@ -4,7 +4,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import Common.Utilities;
-import Constant.Constant;
 import Constant.SeatType;
 
 public class BookTicketTest extends BaseTest{
@@ -13,14 +12,18 @@ public class BookTicketTest extends BaseTest{
 
 	    System.out.println("TC12 - User can book 1 ticket at a time");
 	  
+	    Account account = Accounts.VALID_USER_02.toAccount();
+	    Ticket newTicket = Tickets.TC12.toTicket();
+	    
 	    HomePage homePage = new HomePage();
+	    
 	    step("1. Navigate to QA Railway Website");
 	    homePage.open();
 	    
 	    step("2. Login with a valid account ");
 	    LoginPage loginPage = homePage.gotoLoginPage();
 
-	    HomePage pageAfterLogin = loginPage.login(Constant.VALID_USER_02, HomePage.class);
+	    HomePage pageAfterLogin = loginPage.login(account, HomePage.class);
 	    step("3. Click on <Book ticket> tab");
 	    
 	    BookTicketPage bookTicketPage = pageAfterLogin.gotoBookTicketPage();
@@ -29,8 +32,6 @@ public class BookTicketTest extends BaseTest{
 	    step("5. Select Depart from <Nha Trang> and Arrive at <Huế>");
 	    step("6. Select <Soft bed with air conditioner> for <Seat type>");
 	    step("7. Select <1> for <Ticket amount>");
-	    Ticket newTicket = new Ticket(Utilities.getNextDay(5), "Nha Trang", "Huế", "Soft bed with air conditioner", "1");
-	    		
 	    step("8. Click on <Book ticket> button");
 	    bookTicketPage.bookTicket(newTicket);
 
@@ -54,24 +55,26 @@ public class BookTicketTest extends BaseTest{
 
 	    System.out.println("TC13 - User can book many tickets at a time");
 	    
+	    Account account = Accounts.VALID_USER_03.toAccount();
+	    Ticket newTicket = Tickets.TC13.toTicket();
+	    
 	    HomePage homePage = new HomePage();
+	    
 	    step("1. Navigate to QA Railway Website");
 	    homePage.open();
 	    
 	    step("2. Login with a valid account ");
 	    LoginPage loginPage = homePage.gotoLoginPage();
 
-	    HomePage pageAfterLogin = loginPage.login(Constant.VALID_USER_03, HomePage.class);
+	    homePage = loginPage.login(account, HomePage.class);
 
 	    step("3. Click on <Book ticket> tab"); 
-	    BookTicketPage bookTicketPage = pageAfterLogin.gotoBookTicketPage();
+	    BookTicketPage bookTicketPage = homePage.gotoBookTicketPage();
 
 	    step("4. Select the next 25 days from <Depart date>");
 	    step("5. Select Depart from <Nha Trang> and Arrive at <Sài Gòn>");
 	    step("6. Select <Soft seat with air conditioner> for <Seat type>");
-	    step("7. Select <5> for <Ticket amount>");
-	    Ticket newTicket = new Ticket(Utilities.getNextDay(28), "Nha Trang", "Sài Gòn", "Soft seat with air conditioner", "5");
-	    		
+	    step("7. Select <5> for <Ticket amount>"); 		
 	    step("8. Click on <Book ticket> button");
 	    bookTicketPage.bookTicket(newTicket);
 
@@ -95,6 +98,7 @@ public class BookTicketTest extends BaseTest{
 
 	    System.out.println("TC14 - User can check price of ticket from Timetable");
 	 
+	    Account account = Accounts.VALID_USER_03.toAccount();
 	    HomePage homePage = new HomePage();
 
 	    step("1. Navigate to QA Railway Website");
@@ -104,10 +108,10 @@ public class BookTicketTest extends BaseTest{
 	    step("2. Login with a valid account");
 	    LoginPage loginPage = homePage.gotoLoginPage();
 
-	    HomePage pageAfterLogin = loginPage.login(Constant.VALID_USER_03, HomePage.class);
+	    homePage = loginPage.login(account, HomePage.class);
 
 	    step("3. Click on <Timetable> tab");
-	    TimetablePage timeTablePage = pageAfterLogin.gotoTimetablePage();
+	    TimetablePage timeTablePage = homePage.gotoTimetablePage();
 
 	    step("4. Click on <check price> link of the route from <Đà Nẵng> to <Sài Gòn>");
 	    TicketPricePage checkPricePage = timeTablePage.gotoCheckPrice("Đà Nẵng", "Sài Gòn");
@@ -136,6 +140,9 @@ public class BookTicketTest extends BaseTest{
 
 	    System.out.println("TC15 - User can book ticket from Timetable");
 	    
+	    Account account = Accounts.VALID_USER_03.toAccount();
+	    Ticket newTicket = new Ticket(Utilities.getNextDay(1), "Soft seat with air conditioner", "5");
+	    
 	    HomePage homePage = new HomePage();
 	    
 	    step("1. Navigate to QA Railway Website");
@@ -144,10 +151,10 @@ public class BookTicketTest extends BaseTest{
 	    step("2. Login with a valid account");
 	    LoginPage loginPage = homePage.gotoLoginPage();
 
-	    HomePage pageAfterLogin = loginPage.login(Constant.VALID_USER_03, HomePage.class);
+	    homePage = loginPage.login(account, HomePage.class);
 
 	    step("3. Click on <Timetable> tab");
-	    TimetablePage timeTablePage = pageAfterLogin.gotoTimetablePage();
+	    TimetablePage timeTablePage = homePage.gotoTimetablePage();
 
 	    step("4. Click on book ticket of route <Quảng Ngãi> to <Huế>");
 	    String departFrom = "Quảng Ngãi";
@@ -164,9 +171,7 @@ public class BookTicketTest extends BaseTest{
 	    step("5. Select Depart date = tomorrow");
 	    step("6. Select Ticket amount = 5");
 	    step("7. Click on <Book ticket> button");
-	    
-	    Ticket newTicket = new Ticket(Utilities.getNextDay(1), "Soft seat with air conditioner", "5");
-
+	 
 	    bookTicketPage.bookTicketWithPresetRoute(newTicket);
 
 	    step("Verify: Message <Ticket booked successfully!> displays. Ticket information display correctly (Depart Date,  Depart Station,  Arrive Station,  Seat Type,  Amount)");
