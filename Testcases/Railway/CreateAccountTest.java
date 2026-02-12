@@ -58,8 +58,8 @@ public class CreateAccountTest extends BaseTest{
 	    String actualPIDVlid = registerPage.getValidatePIDError();
 
 	    String expectedMsg = "There're errors in the form. Please correct the errors and try again.";
-	    String expectedVlidPwdError = "Invalid password length";
-	    String expectedVlidPIDError = "Invalid ID length";
+	    String expectedVlidPwdError = "Invalid password length.";
+	    String expectedVlidPIDError = "Invalid ID length.";
 	    
 
 	    step("Verify: Message <There're errors in the form. Please correct the errors and try again.> appears above the form.");
@@ -125,7 +125,7 @@ public class CreateAccountTest extends BaseTest{
 
 	    step("Verify: Redirect to Railways page and message <Registration Confirmed! You can now log in to the site> is shown");
 	    String actualMsg = registerPage.getVerifySuccessMsg();
-	    String expectedMsg = "Registration Confirmed! You can now log in to the site.";
+	    String expectedMsg = "Registration Confirmed! You can now log in to the site";
 
 	    Assert.assertEquals(actualMsg, expectedMsg, "Confirm message is not displayed as expected");
 	}
